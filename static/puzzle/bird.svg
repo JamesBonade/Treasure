@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bird">
+  <rect width="120" height="120" rx="16" fill="#E0F2FE"/>
+  <ellipse cx="58" cy="64" rx="28" ry="20" fill="#38BDF8"/>
+  <circle cx="78" cy="48" r="14" fill="#7DD3FC"/>
+  <circle cx="84" cy="46" r="2.5" fill="#1C1917"/>
+  <path d="M90 50 L104 48 L90 56 Z" fill="#F97316"/>
+  <path d="M40 64 Q28 40 52 54" fill="#0EA5E9"/>
+  <path d="M55 82 L50 96 M62 82 L66 96" stroke="#0369A1" stroke-width="3" stroke-linecap="round"/>
+</svg>

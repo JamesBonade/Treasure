@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Three cats">
+  <rect width="120" height="120" rx="16" fill="#FFEDD5"/>
+  <g transform="translate(8,18) scale(0.3)">
+    <ellipse cx="60" cy="74" rx="26" ry="20" fill="#FB923C"/>
+    <circle cx="60" cy="50" r="20" fill="#FDBA74"/>
+    <path d="M42 38 L46 18 L56 40 Z" fill="#FB923C"/>
+    <path d="M78 38 L74 18 L64 40 Z" fill="#FB923C"/>
+    <circle cx="52" cy="48" r="3" fill="#1C1917"/>
+    <circle cx="68" cy="48" r="3" fill="#1C1917"/>
+  </g>
+  <g transform="translate(58,18) scale(0.3)">
+    <ellipse cx="60" cy="74" rx="26" ry="20" fill="#FB923C"/>
+    <circle cx="60" cy="50" r="20" fill="#FDBA74"/>
+    <path d="M42 38 L46 18 L56 40 Z" fill="#FB923C"/>
+    <path d="M78 38 L74 18 L64 40 Z" fill="#FB923C"/>
+    <circle cx="52" cy="48" r="3" fill="#1C1917"/>
+    <circle cx="68" cy="48" r="3" fill="#1C1917"/>
+  </g>
+  <g transform="translate(33,58) scale(0.3)">
+    <ellipse cx="60" cy="74" rx="26" ry="20" fill="#FB923C"/>
+    <circle cx="60" cy="50" r="20" fill="#FDBA74"/>
+    <path d="M42 38 L46 18 L56 40 Z" fill="#FB923C"/>
+    <path d="M78 38 L74 18 L64 40 Z" fill="#FB923C"/>
+    <circle cx="52" cy="48" r="3" fill="#1C1917"/>
+    <circle cx="68" cy="48" r="3" fill="#1C1917"/>
+  </g>
+</svg>
