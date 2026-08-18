@@ -25,6 +25,7 @@
 	import { emptyPuzzleModules } from '$lib/types/clues';
 
 	export let clueNumber: number;
+	export let isEditing = false;
 	export let type: ClueType = 'word';
 	export let action = '';
 	export let place = '';
@@ -106,10 +107,10 @@
 	};
 </script>
 
-<article class="space-y-3 border-t border-stone-200 pt-5" aria-labelledby="clue-{clueNumber}-heading">
+<article class="space-y-3" aria-labelledby="clue-{clueNumber}-heading">
 	<div class="flex flex-wrap items-center justify-between gap-2">
 		<h2 id="clue-{clueNumber}-heading" class="text-base font-semibold text-emerald-900">
-			Clue {clueNumber}
+			{isEditing ? `Edit clue ${clueNumber}` : `Clue ${clueNumber}`}
 		</h2>
 		<div class="flex rounded border border-stone-300 text-sm" role="group" aria-label="Clue type">
 			<button
@@ -174,8 +175,7 @@
 			{/key}
 		</div>
 	{:else}
-		<div class="space-y-2">
-			<p class="text-xs font-medium uppercase tracking-wide text-stone-500">Prompt</p>
+		<div class="space-y-3">
 			<ModularPuzzleBuilder {clueNumber} {puzzle} on:change={handlePuzzleChange} />
 			{#if hasPuzzleSelection(puzzle)}
 				<PuzzleChoiceGrid cards={choiceCards} {clueNumber} />

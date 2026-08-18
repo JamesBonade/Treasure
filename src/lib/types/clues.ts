@@ -36,3 +36,13 @@ export const emptyPuzzleModules = (): PuzzleModules => ({
 	colour: null,
 	shape: null
 });
+
+export const createEmptyClue = (n: number): FamilyClue => ({
+	n,
+	type: 'word',
+	action: '',
+	place: '',
+	discover: '',
+	answer: '',
+	puzzle: emptyPuzzleModules()
+});
