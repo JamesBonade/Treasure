@@ -25,7 +25,6 @@
 	import { emptyPuzzleModules } from '$lib/types/clues';
 
 	export let clueNumber: number;
-	export let isEditing = false;
 	export let type: ClueType = 'word';
 	export let action = '';
 	export let place = '';
@@ -107,43 +106,56 @@
 	};
 </script>
 
-<article class="space-y-3" aria-labelledby="clue-{clueNumber}-heading">
-	<div class="flex flex-wrap items-center justify-between gap-2">
-		<h2 id="clue-{clueNumber}-heading" class="text-base font-semibold text-emerald-900">
-			{isEditing ? `Edit clue ${clueNumber}` : `Clue ${clueNumber}`}
-		</h2>
-		<div class="flex rounded border border-stone-300 text-sm" role="group" aria-label="Clue type">
-			<button
-				type="button"
-				class="px-2.5 py-1"
-				class:bg-emerald-700={type === 'word'}
-				class:text-white={type === 'word'}
-				aria-pressed={type === 'word'}
-				on:click={() => handleTypeChange('word')}
-			>
-				Word
-			</button>
-			<button
-				type="button"
-				class="border-l border-stone-300 px-2.5 py-1"
-				class:bg-emerald-700={type === 'puzzle'}
-				class:text-white={type === 'puzzle'}
-				aria-pressed={type === 'puzzle'}
-				on:click={() => handleTypeChange('puzzle')}
-			>
-				Puzzle
-			</button>
+<article class="panel overflow-hidden" aria-labelledby="clue-{clueNumber}-heading">
+	<div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-4 py-3">
+		<div class="flex items-center gap-3">
+			<h2 id="clue-{clueNumber}-heading" class="text-sm font-semibold text-stone-900">
+				Clue {clueNumber}
+			</h2>
+			<div class="segmented !p-0.5 text-xs" role="group" aria-label="Clue type">
+				<button
+					type="button"
+					class="segmented-btn !px-2.5 !py-1"
+					class:segmented-btn-active={type === 'word'}
+					aria-pressed={type === 'word'}
+					on:click={() => handleTypeChange('word')}
+				>
+					Word
+				</button>
+				<button
+					type="button"
+					class="segmented-btn !px-2.5 !py-1"
+					class:segmented-btn-active={type === 'puzzle'}
+					aria-pressed={type === 'puzzle'}
+					on:click={() => handleTypeChange('puzzle')}
+				>
+					Puzzle
+				</button>
+			</div>
 		</div>
+
+		<p
+			class="min-w-0 max-w-md truncate text-xs text-stone-500 sm:text-right"
+			class:italic={previewIsExample}
+			aria-live="polite"
+		>
+			{#if type === 'word'}
+				{wordPreview}{#if !answerIsExample || !previewIsExample} → {previewAnswer}{/if}
+			{:else}
+				{preview}
+			{/if}
+		</p>
 	</div>
 
-	{#if type === 'word'}
-		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="px-4 py-2">
+		{#if type === 'word'}
 			<PhraseBlockPicker
 				id="action-{clueNumber}"
 				label="Action"
 				example={actionExample}
 				value={action}
 				blocks={actionBlocks}
+				layout="compact"
 				on:change={handleActionChange}
 			/>
 			<PhraseBlockPicker
@@ -152,14 +164,16 @@
 				example={placeExample}
 				value={place}
 				blocks={placeBlocks}
+				layout="phrase"
 				on:change={handlePlaceChange}
 			/>
 			<PhraseBlockPicker
 				id="discover-{clueNumber}"
-				label="Discover"
+				label="Ask"
 				example={discoverExample}
 				value={discover}
 				blocks={discoverBlocks}
+				layout="phrase"
 				on:change={handleDiscoverChange}
 			/>
 			{#key activeDiscover}
@@ -170,39 +184,17 @@
 					value={answer}
 					blocks={filteredAnswerBlocks}
 					freeform={answerFreeform}
+					layout={answerFreeform ? 'phrase' : 'compact'}
 					on:change={handleAnswerChange}
 				/>
 			{/key}
-		</div>
-	{:else}
-		<div class="space-y-3">
+		{:else}
 			<ModularPuzzleBuilder {clueNumber} {puzzle} on:change={handlePuzzleChange} />
 			{#if hasPuzzleSelection(puzzle)}
-				<PuzzleChoiceGrid cards={choiceCards} {clueNumber} />
+				<div class="border-t border-stone-100 pt-3">
+					<PuzzleChoiceGrid cards={choiceCards} {clueNumber} />
+				</div>
 			{/if}
-		</div>
-	{/if}
-
-	{#if preview}
-		<div class="space-y-1 text-sm" aria-live="polite">
-			<p
-				class:text-stone-400={previewIsExample}
-				class:italic={previewIsExample}
-				class:text-stone-500={!previewIsExample}
-			>
-				{type === 'word' ? 'Kids hear' : 'Kids see'}:
-				<span class:text-stone-800={!previewIsExample}>{preview}</span>
-			</p>
-			{#if type === 'word'}
-				<p
-					class:text-stone-400={answerIsExample}
-					class:italic={answerIsExample}
-					class:text-stone-500={!answerIsExample}
-				>
-					Expected answer:
-					<span class:text-stone-800={!answerIsExample}>{previewAnswer}</span>
-				</p>
-			{/if}
-		</div>
-	{/if}
+		{/if}
+	</div>
 </article>

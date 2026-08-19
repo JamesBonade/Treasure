@@ -17,35 +17,14 @@
 	type FacetConfig = {
 		key: PuzzleFacet;
 		label: string;
-		placeholder: string;
 		options: PuzzleFacetOption[];
 	};
 
 	const facets: FacetConfig[] = [
-		{
-			key: 'number',
-			label: 'Number',
-			placeholder: 'Choose a number…',
-			options: numberOptionsAge3to5
-		},
-		{
-			key: 'object',
-			label: 'Object',
-			placeholder: 'Choose an object…',
-			options: objectOptionsAge3to5
-		},
-		{
-			key: 'colour',
-			label: 'Colour',
-			placeholder: 'Choose a colour…',
-			options: colourOptionsAge3to5
-		},
-		{
-			key: 'shape',
-			label: 'Shape',
-			placeholder: 'Choose a shape…',
-			options: shapeOptionsAge3to5
-		}
+		{ key: 'number', label: 'No.', options: numberOptionsAge3to5 },
+		{ key: 'object', label: 'Object', options: objectOptionsAge3to5 },
+		{ key: 'colour', label: 'Colour', options: colourOptionsAge3to5 },
+		{ key: 'shape', label: 'Shape', options: shapeOptionsAge3to5 }
 	];
 
 	let draft: PuzzleModules = {
@@ -90,49 +69,45 @@
 		const isSame = draft[key] === id;
 		emitDraft({ ...draft, [key]: isSame ? null : id });
 	};
+
+	const chipClass =
+		'rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap transition focus:outline-none focus:ring-2 focus:ring-brand-100';
 </script>
 
-<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Puzzle options for clue {clueNumber}">
+<div class="divide-y divide-stone-100" aria-label="Puzzle options for clue {clueNumber}">
 	{#each facets as facet (facet.key)}
 		{@const selected = selectedByFacet[facet.key]}
-		<div class="min-w-0">
-			<p class="mb-1 text-xs font-medium uppercase tracking-wide text-stone-500">
-				{facet.label}
-			</p>
-			<div
-				class="w-full rounded border border-stone-300 bg-white px-2 py-1.5 text-sm"
-				class:text-stone-400={!selected}
-				class:italic={!selected}
-				class:text-stone-900={!!selected}
-				aria-live="polite"
-			>
-				{selected?.label ?? facet.placeholder}
+		<div class="space-y-2 py-3">
+			<div class="flex items-start gap-2 sm:items-center">
+				<span class="w-16 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+					{facet.label}
+				</span>
+				<div class="flex min-w-0 flex-1 flex-wrap gap-1.5" role="listbox" aria-label="{facet.label}">
+					{#each facet.options as option (option.id)}
+						<button
+							type="button"
+							role="option"
+							aria-selected={selected?.id === option.id}
+							class={chipClass}
+							class:border-brand-600={selected?.id === option.id}
+							class:bg-brand-600={selected?.id === option.id}
+							class:text-white={selected?.id === option.id}
+							class:border-stone-200={selected?.id !== option.id}
+							class:bg-white={selected?.id !== option.id}
+							class:text-stone-700={selected?.id !== option.id}
+							class:hover:border-brand-300={selected?.id !== option.id}
+							on:click={() => handlePickValue(facet.key, option.id)}
+						>
+							{option.label}
+						</button>
+					{/each}
+				</div>
 			</div>
-			<div
-				class="mt-1.5 flex flex-wrap gap-1.5"
-				role="listbox"
-				aria-label="{facet.label} options"
-			>
-				{#each facet.options as option (option.id)}
-					<button
-						type="button"
-						role="option"
-						aria-selected={selected?.id === option.id}
-						class="max-w-full rounded-full border px-2.5 py-0.5 text-xs"
-						class:border-emerald-700={selected?.id === option.id}
-						class:bg-emerald-50={selected?.id === option.id}
-						class:text-emerald-900={selected?.id === option.id}
-						class:border-stone-300={selected?.id !== option.id}
-						class:bg-white={selected?.id !== option.id}
-						class:text-stone-700={selected?.id !== option.id}
-						class:hover:border-stone-400={selected?.id !== option.id}
-						title={option.label}
-						on:click={() => handlePickValue(facet.key, option.id)}
-					>
-						<span class="block truncate">{option.label}</span>
-					</button>
-				{/each}
-			</div>
+			{#if selected}
+				<p class="ml-[4.5rem] truncate rounded-lg bg-brand-50 px-2.5 py-1.5 text-sm font-medium text-brand-900" aria-live="polite">
+					{selected.label}
+				</p>
+			{/if}
 		</div>
 	{/each}
 </div>

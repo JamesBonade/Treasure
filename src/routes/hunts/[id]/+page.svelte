@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Age3to5ClueBuilder from '$lib/components/clues/Age3to5ClueBuilder.svelte';
+	import ClueTrailBreadcrumb from '$lib/components/clues/ClueTrailBreadcrumb.svelte';
 	import { buildMixedCluePreview } from '$lib/data/clueBlocks';
 	import { buildModularPuzzlePrompt, hasPuzzleSelection } from '$lib/data/puzzleModules';
 	import type { ClueChangeDetail, FamilyClue } from '$lib/types/clues';
@@ -18,11 +19,11 @@
 		Boolean(draft.action.trim() || draft.place.trim() || draft.discover.trim() || draft.answer.trim());
 	$: isPuzzleReady = draft.type === 'puzzle' && hasPuzzleSelection(draft.puzzle);
 	$: canSave = isWordReady || isPuzzleReady;
-	$: isEditing = editingIndex !== null;
+	$: isWritingNew = editingIndex === null;
 
 	const clueSummary = (clue: FamilyClue): string => {
 		if (clue.type === 'puzzle') {
-			return buildModularPuzzlePrompt(clue.puzzle) || 'Puzzle clue';
+			return buildModularPuzzlePrompt(clue.puzzle) || 'Puzzle';
 		}
 		return buildMixedCluePreview(clue.action, clue.place, clue.discover) || 'Word clue';
 	};
@@ -81,7 +82,8 @@
 		editorKey += 1;
 	};
 
-	const handleEditSaved = (index: number) => {
+	const handleEditSaved = (event: CustomEvent<number>) => {
+		const index = event.detail;
 		if (editingIndex === index) return;
 		if (isDraftDirty()) {
 			const confirmed = window.confirm(
@@ -97,62 +99,48 @@
 	};
 </script>
 
-<section class="space-y-6">
-	<div class="flex flex-wrap items-end justify-between gap-3">
-		<div>
-			<p class="text-sm text-stone-500">{id} · 3–5</p>
-			<h1 class="text-2xl font-bold text-emerald-900">Build hunt</h1>
+<section class="space-y-3">
+	<div class="flex flex-wrap items-center justify-between gap-3">
+		<div class="flex flex-wrap items-center gap-3">
+			<h1 class="text-lg font-bold text-stone-900">Build hunt</h1>
+			<span class="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-800">
+				3–5
+			</span>
+			<ClueTrailBreadcrumb
+				{savedClues}
+				activeIndex={editingIndex}
+				draftNumber={draft.n}
+				{isWritingNew}
+				summaryFor={clueSummary}
+				on:edit={handleEditSaved}
+			/>
 		</div>
-		<a
-			href="/hunts/{id}/share"
-			class="text-sm text-emerald-700 underline"
-			aria-label="Share this hunt"
-		>
-			Share
-		</a>
+		<div class="flex items-center gap-2">
+			<button
+				type="button"
+				class="btn-secondary !px-3 !py-1.5 text-xs"
+				disabled={!canSave}
+				aria-label="Save this clue"
+				on:click={handleSave}
+			>
+				Save
+			</button>
+			<button
+				type="button"
+				class="btn-primary !px-3 !py-1.5 text-xs"
+				disabled={!canSave}
+				aria-label="Save and add another clue"
+				on:click={handleSaveAndAdd}
+			>
+				Save +
+			</button>
+			<a href="/hunts/{id}/share" class="btn-ghost !px-2 !py-1.5 text-xs" aria-label="Share hunt">Share</a>
+		</div>
 	</div>
-
-	{#if savedClues.length > 0}
-		<div class="space-y-2">
-			<h2 class="text-xs font-medium uppercase tracking-wide text-stone-500">Saved clues</h2>
-			<ul class="space-y-1">
-				{#each savedClues as clue, index (clue.n)}
-					<li
-						class="flex items-start justify-between gap-3 rounded border px-3 py-2"
-						class:border-emerald-700={editingIndex === index}
-						class:bg-emerald-50={editingIndex === index}
-						class:border-stone-200={editingIndex !== index}
-						class:bg-white={editingIndex !== index}
-					>
-						<div class="min-w-0 text-sm">
-							<p>
-								<span class="font-medium text-emerald-900">Clue {clue.n}</span>
-								<span class="text-stone-500"> · {clue.type === 'word' ? 'Word' : 'Puzzle'}</span>
-							</p>
-							<p class="mt-0.5 truncate text-stone-700">{clueSummary(clue)}</p>
-						</div>
-						{#if editingIndex === index}
-							<span class="shrink-0 pt-0.5 text-xs font-medium text-emerald-800">Editing</span>
-						{:else}
-							<button
-								type="button"
-								class="shrink-0 text-sm text-sky-800 hover:underline"
-								aria-label="Edit clue {clue.n} and abandon the current clue"
-								on:click={() => handleEditSaved(index)}
-							>
-								Edit
-							</button>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</div>
-	{/if}
 
 	{#key editorKey}
 		<Age3to5ClueBuilder
 			clueNumber={draft.n}
-			{isEditing}
 			type={draft.type}
 			action={draft.action}
 			place={draft.place}
@@ -162,25 +150,4 @@
 			on:change={handleClueChange}
 		/>
 	{/key}
-
-	<div class="flex flex-wrap gap-2">
-		<button
-			type="button"
-			class="rounded border border-emerald-700 px-4 py-2 text-emerald-800 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400 disabled:hover:bg-transparent"
-			aria-label="Save this clue"
-			disabled={!canSave}
-			on:click={handleSave}
-		>
-			Save
-		</button>
-		<button
-			type="button"
-			class="rounded bg-emerald-700 px-4 py-2 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:hover:bg-stone-300"
-			aria-label="Save this clue and add another"
-			disabled={!canSave}
-			on:click={handleSaveAndAdd}
-		>
-			Save and add clue
-		</button>
-	</div>
 </section>

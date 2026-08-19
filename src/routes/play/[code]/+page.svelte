@@ -1,38 +1,60 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { getHuntByCode } from '$lib/data/sampleHunts';
 
-	$: code = $page.params.code ?? 'unknown';
-	let teamName = '';
+	$: code = $page.params.code ?? '';
+	$: hunt = getHuntByCode(code);
+
+	let playerName = '';
 
 	const handleStart = () => {
-		// Shell only
+		if (playerName.trim()) {
+			sessionStorage.setItem(`treasure-player-${code}`, playerName.trim());
+		}
 	};
 </script>
 
-<section class="mx-auto max-w-md space-y-6">
-	<div class="space-y-2 text-center">
-		<p class="text-sm text-stone-500">Play code: {code}</p>
-		<h1 class="text-3xl font-bold text-emerald-900">Join the hunt</h1>
-		<p class="text-stone-600">Enter your name or team name to begin.</p>
-	</div>
+{#if !hunt}
+	<section class="mx-auto max-w-md space-y-4 text-center">
+		<h1 class="text-2xl font-bold text-stone-900">Hunt not found</h1>
+		<p class="text-stone-600">We could not find a hunt for code "{code}".</p>
+		<a href="/" class="btn-primary inline-flex">Back home</a>
+	</section>
+{:else}
+	<section class="mx-auto max-w-lg space-y-6">
+		<div class="overflow-hidden rounded-3xl border border-stone-200/80 bg-white shadow-soft">
+			<div class="bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-10 text-center text-white sm:px-8">
+				<p class="text-xs font-bold uppercase tracking-[0.2em] text-brand-100">Join hunt</p>
+				<h1 class="mt-3 text-3xl font-bold sm:text-4xl">{hunt.title}</h1>
+				<p class="mt-3 text-sm text-brand-50">
+					{hunt.setting} · {hunt.clues.length} clues · ages {hunt.ageBand}
+				</p>
+				<p class="mt-4 inline-flex rounded-full bg-white/15 px-3 py-1 font-mono text-sm tracking-wider">
+					{hunt.code}
+				</p>
+			</div>
 
-	<label class="block space-y-1">
-		<span class="text-sm font-medium">Name / team</span>
-		<input
-			bind:value={teamName}
-			type="text"
-			class="w-full rounded border border-stone-300 px-3 py-2"
-			placeholder="The Explorers"
-			aria-label="Name or team name"
-		/>
-	</label>
+			<div class="space-y-5 p-6 sm:p-8">
+				<label class="block space-y-2">
+					<span class="field-label">Explorer name (optional)</span>
+					<input
+						bind:value={playerName}
+						type="text"
+						class="field-input text-base"
+						placeholder="The Explorers"
+						aria-label="Your name or team name"
+					/>
+				</label>
 
-	<a
-		href="/play/{code}/clue/1"
-		class="block rounded bg-emerald-700 px-4 py-3 text-center text-white hover:bg-emerald-800"
-		aria-label="Start the hunt"
-		on:click={handleStart}
-	>
-		Start hunt
-	</a>
-</section>
+				<a
+					href="/play/{hunt.code}/clue/1"
+					class="btn-primary block w-full py-3 text-center text-base"
+					aria-label="Start {hunt.title}"
+					on:click={handleStart}
+				>
+					Let's go!
+				</a>
+			</div>
+		</div>
+	</section>
+{/if}

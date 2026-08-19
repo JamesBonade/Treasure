@@ -1,3 +1,75 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	html {
+		@apply antialiased;
+	}
+
+	body {
+		@apply bg-stone-50 text-stone-900;
+	}
+}
+
+@layer components {
+	.field-label {
+		@apply mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-stone-500;
+	}
+
+	.field-input {
+		@apply w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 shadow-sm transition placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+	}
+
+	.field-input-muted {
+		@apply italic text-stone-400;
+	}
+
+	.chip {
+		@apply max-w-full rounded-full border px-3 py-1 text-xs font-medium transition;
+	}
+
+	.chip-selected {
+		@apply border-brand-600 bg-brand-600 text-white shadow-sm;
+	}
+
+	.chip-default {
+		@apply border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50;
+	}
+
+	.panel {
+		@apply rounded-2xl border border-stone-200/80 bg-white shadow-soft;
+	}
+
+	.panel-muted {
+		@apply rounded-2xl border border-dashed border-stone-200 bg-stone-50/80;
+	}
+
+	.btn-primary {
+		@apply inline-flex items-center justify-center rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none;
+	}
+
+	.btn-secondary {
+		@apply inline-flex items-center justify-center rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-stone-200 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400 disabled:shadow-none;
+	}
+
+	.btn-ghost {
+		@apply inline-flex items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium text-brand-700 transition hover:bg-brand-50;
+	}
+
+	.segmented {
+		@apply inline-flex rounded-xl border border-stone-200 bg-stone-100 p-1 text-sm;
+	}
+
+	.segmented-btn {
+		@apply rounded-lg px-3 py-1.5 font-medium text-stone-600 transition;
+	}
+
+	.segmented-btn-active {
+		@apply bg-white text-brand-800 shadow-sm;
+	}
+
+	.nav-link {
+		@apply rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-brand-800;
+	}
+}

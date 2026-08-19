@@ -1,40 +1,36 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { getHuntById } from '$lib/data/sampleHunts';
 
 	$: id = $page.params.id ?? 'unknown';
-	const playCode = 'DEMO';
+	$: hunt = getHuntById(id);
+	$: playCode = hunt?.code ?? 'DEMO';
 </script>
 
-<section class="space-y-8">
-	<div class="space-y-2">
+<section class="space-y-6">
+	<div class="panel p-5 sm:p-6">
 		<p class="text-sm text-stone-500">{id}</p>
-		<h1 class="text-3xl font-bold text-emerald-900">Share hunt</h1>
-		<p class="text-stone-600">Birthday Garden Quest · Ages 3–5 · Garden</p>
+		<h1 class="mt-1 text-2xl font-bold text-stone-900 sm:text-3xl">Share hunt</h1>
+		{#if hunt}
+			<p class="mt-2 text-stone-600">
+				{hunt.title} · Ages {hunt.ageBand} · {hunt.setting}
+			</p>
+		{/if}
 	</div>
 
-	<div class="space-y-3">
-		<h2 class="text-lg font-semibold">Play code</h2>
-		<p class="font-mono text-2xl tracking-widest text-emerald-800">{playCode}</p>
-		<p class="text-sm text-stone-500">Children join at /play/{playCode}</p>
-		<a
-			href="/play/{playCode}"
-			class="inline-block text-emerald-700 underline"
-			aria-label="Open play join page for code {playCode}"
-		>
-			Open join page
+	<div class="panel space-y-4 p-5 sm:p-6">
+		<div>
+			<h2 class="text-sm font-semibold text-stone-900">Play code</h2>
+			<p class="mt-2 font-mono text-3xl tracking-widest text-brand-800">{playCode}</p>
+			<p class="mt-2 text-sm text-stone-500">Children join at /play/{playCode}</p>
+		</div>
+		<a href="/play/{playCode}" class="btn-primary inline-flex" aria-label="Open play page for code {playCode}">
+			Try the play screen
 		</a>
 	</div>
 
-	<div class="flex flex-wrap gap-3">
-		<a
-			href="/hunts/{id}"
-			class="rounded bg-emerald-700 px-4 py-2 text-white hover:bg-emerald-800"
-			aria-label="Edit clues for this hunt"
-		>
-			Edit clues
-		</a>
-		<a href="/hunts" class="px-4 py-2 text-stone-600 underline" aria-label="Back to my hunts">
-			My hunts
-		</a>
+	<div class="flex flex-wrap gap-2">
+		<a href="/hunts/{id}" class="btn-secondary" aria-label="Edit clues for this hunt">Edit clues</a>
+		<a href="/hunts" class="btn-ghost" aria-label="Back to my hunts">My hunts</a>
 	</div>
 </section>
