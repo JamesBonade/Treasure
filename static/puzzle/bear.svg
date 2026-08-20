@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bear">
+  <!-- Small ears on big head -->
+  <circle cx="28" cy="26" r="12" fill="#9A3412"/>
+  <circle cx="92" cy="26" r="12" fill="#9A3412"/>
+  <circle cx="28" cy="26" r="6" fill="#C2410F"/>
+  <circle cx="92" cy="26" r="6" fill="#C2410F"/>
+  <!-- Huge round head + wide body -->
+  <ellipse cx="60" cy="96" rx="34" ry="16" fill="#7C2D12"/>
+  <circle cx="60" cy="52" r="36" fill="#C2410F"/>
+  <!-- Pale snout muzzle -->
+  <ellipse cx="60" cy="68" rx="18" ry="14" fill="#FED7AA"/>
+  <ellipse cx="60" cy="64" rx="7" ry="5" fill="#1C1917"/>
+  <!-- Eyes -->
+  <circle cx="44" cy="46" r="5" fill="#1C1917"/>
+  <circle cx="76" cy="46" r="5" fill="#1C1917"/>
+  <circle cx="45.8" cy="44.5" r="1.6" fill="#fff"/>
+  <circle cx="77.8" cy="44.5" r="1.6" fill="#fff"/>
+  <path d="M48 80 Q60 88 72 80" fill="none" stroke="#7C2D12" stroke-width="3" stroke-linecap="round"/>
+</svg>

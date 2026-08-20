@@ -12,28 +12,46 @@ export const objectOptionsAge3to5: PuzzleFacetOption[] = [
 	{ id: 'dog', label: 'Dog', word: 'dog', plural: 'dogs', src: '/puzzle/dog.svg' },
 	{ id: 'cat', label: 'Cat', word: 'cat', plural: 'cats', src: '/puzzle/cat.svg' },
 	{ id: 'bird', label: 'Bird', word: 'bird', plural: 'birds', src: '/puzzle/bird.svg' },
-	{ id: 'fish', label: 'Fish', word: 'fish', plural: 'fish', src: '/puzzle/fish.svg' }
+	{ id: 'fish', label: 'Fish', word: 'fish', plural: 'fish', src: '/puzzle/fish.svg' },
+	{ id: 'rabbit', label: 'Rabbit', word: 'rabbit', plural: 'rabbits', src: '/puzzle/rabbit.svg' },
+	{ id: 'frog', label: 'Frog', word: 'frog', plural: 'frogs', src: '/puzzle/frog.svg' },
+	{ id: 'duck', label: 'Duck', word: 'duck', plural: 'ducks', src: '/puzzle/duck.svg' },
+	{ id: 'butterfly', label: 'Butterfly', word: 'butterfly', plural: 'butterflies', src: '/puzzle/butterfly.svg' },
+	{ id: 'elephant', label: 'Elephant', word: 'elephant', plural: 'elephants', src: '/puzzle/elephant.svg' },
+	{ id: 'bear', label: 'Bear', word: 'bear', plural: 'bears', src: '/puzzle/bear.svg' }
 ];
 
 export const colourOptionsAge3to5: PuzzleFacetOption[] = [
 	{ id: 'blue', label: 'Blue', word: 'blue', src: '/puzzle/colour-blue.svg' },
 	{ id: 'red', label: 'Red', word: 'red', src: '/puzzle/colour-red.svg' },
 	{ id: 'yellow', label: 'Yellow', word: 'yellow', src: '/puzzle/colour-yellow.svg' },
-	{ id: 'green', label: 'Green', word: 'green', src: '/puzzle/colour-green.svg' }
+	{ id: 'green', label: 'Green', word: 'green', src: '/puzzle/colour-green.svg' },
+	{ id: 'orange', label: 'Orange', word: 'orange', src: '/puzzle/colour-orange.svg' },
+	{ id: 'purple', label: 'Purple', word: 'purple', src: '/puzzle/colour-purple.svg' },
+	{ id: 'pink', label: 'Pink', word: 'pink', src: '/puzzle/colour-pink.svg' },
+	{ id: 'brown', label: 'Brown', word: 'brown', src: '/puzzle/colour-brown.svg' }
 ];
 
 export const shapeOptionsAge3to5: PuzzleFacetOption[] = [
 	{ id: 'circle', label: 'Circle', word: 'circle', plural: 'circles', src: '/puzzle/shape-circle.svg' },
 	{ id: 'square', label: 'Square', word: 'square', plural: 'squares', src: '/puzzle/shape-square.svg' },
 	{ id: 'triangle', label: 'Triangle', word: 'triangle', plural: 'triangles', src: '/puzzle/shape-triangle.svg' },
-	{ id: 'star', label: 'Star', word: 'star', plural: 'stars', src: '/puzzle/shape-star.svg' }
+	{ id: 'star', label: 'Star', word: 'star', plural: 'stars', src: '/puzzle/shape-star.svg' },
+	{ id: 'heart', label: 'Heart', word: 'heart', plural: 'hearts', src: '/puzzle/shape-heart.svg' },
+	{ id: 'diamond', label: 'Diamond', word: 'diamond', plural: 'diamonds', src: '/puzzle/shape-diamond.svg' },
+	{ id: 'oval', label: 'Oval', word: 'oval', plural: 'ovals', src: '/puzzle/shape-oval.svg' },
+	{ id: 'hexagon', label: 'Hexagon', word: 'hexagon', plural: 'hexagons', src: '/puzzle/shape-hexagon.svg' }
 ];
 
 export const colourHex: Record<string, string> = {
 	blue: '#2563EB',
 	red: '#DC2626',
 	yellow: '#EAB308',
-	green: '#16A34A'
+	green: '#16A34A',
+	orange: '#EA580C',
+	purple: '#9333EA',
+	pink: '#DB2777',
+	brown: '#92400E'
 };
 
 export const getActiveFacets = (puzzle: PuzzleModules): PuzzleFacet[] => {
@@ -60,7 +78,11 @@ const nounFor = (option: PuzzleFacetOption, count: number | null): string => {
 	return option.word;
 };
 
-/** Compose “Select the …” from any active facet combination. */
+/**
+ * Compose a spoken/shown “Find the …” clue from active facets.
+ * Order: number → colour → shape → object (object/shape is the noun).
+ * Examples: “Find the dog”, “Find the 2 blue dogs”, “Find the blue circle”.
+ */
 export const buildModularPuzzlePrompt = (puzzle: PuzzleModules): string => {
 	const count = puzzle.number ? Number(puzzle.number) : null;
 	const safeCount = count !== null && !Number.isNaN(count) ? count : null;
@@ -70,13 +92,10 @@ export const buildModularPuzzlePrompt = (puzzle: PuzzleModules): string => {
 
 	const parts: string[] = [];
 
-	if (safeCount !== null) {
-		parts.push(String(safeCount));
-	}
-	if (colour) {
-		parts.push(colour.word);
-	}
-	if (shape && object) {
+	if (safeCount !== null) parts.push(String(safeCount));
+	if (colour) parts.push(colour.word);
+
+	if (object && shape) {
 		parts.push(shape.word);
 		parts.push(nounFor(object, safeCount));
 	} else if (object) {
@@ -86,7 +105,7 @@ export const buildModularPuzzlePrompt = (puzzle: PuzzleModules): string => {
 	}
 
 	if (parts.length === 0) return '';
-	return `Select the ${parts.join(' ')}`;
+	return `Find the ${parts.join(' ')}`;
 };
 
 export const hasPuzzleSelection = (puzzle: PuzzleModules): boolean =>
@@ -110,7 +129,7 @@ export const buildModularPuzzleChoices = (puzzle: PuzzleModules): PuzzleChoiceCa
 
 	const toCard = (id: string, variant: PuzzleModules, isCorrect: boolean): PuzzleChoiceCard => ({
 		id,
-		label: buildModularPuzzlePrompt(variant).replace(/^Select the /, ''),
+		label: buildModularPuzzlePrompt(variant).replace(/^Find the /i, ''),
 		isCorrect,
 		modules: { ...variant }
 	});
@@ -169,14 +188,24 @@ const objectSilhouettes: Record<string, string> = {
 	dog: '/puzzle/silhouette-dog.svg',
 	cat: '/puzzle/silhouette-cat.svg',
 	bird: '/puzzle/silhouette-bird.svg',
-	fish: '/puzzle/silhouette-fish.svg'
+	fish: '/puzzle/silhouette-fish.svg',
+	rabbit: '/puzzle/silhouette-rabbit.svg',
+	frog: '/puzzle/silhouette-frog.svg',
+	duck: '/puzzle/silhouette-duck.svg',
+	butterfly: '/puzzle/silhouette-butterfly.svg',
+	elephant: '/puzzle/silhouette-elephant.svg',
+	bear: '/puzzle/silhouette-bear.svg'
 };
 
 const shapeSilhouettes: Record<string, string> = {
 	circle: '/puzzle/silhouette-circle.svg',
 	square: '/puzzle/silhouette-square.svg',
 	triangle: '/puzzle/silhouette-triangle.svg',
-	star: '/puzzle/silhouette-star.svg'
+	star: '/puzzle/silhouette-star.svg',
+	heart: '/puzzle/silhouette-heart.svg',
+	diamond: '/puzzle/silhouette-diamond.svg',
+	oval: '/puzzle/silhouette-oval.svg',
+	hexagon: '/puzzle/silhouette-hexagon.svg'
 };
 
 /** Artwork for coloured masking — transparent silhouettes only. */

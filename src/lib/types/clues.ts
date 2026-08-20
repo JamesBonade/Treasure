@@ -1,6 +1,6 @@
 export type AgeBand = '3-5' | '5-8' | '8-12';
 
-export type ClueType = 'word' | 'puzzle';
+export type ClueType = 'word' | 'puzzle' | 'trace';
 
 export type PuzzleFacet = 'number' | 'object' | 'colour' | 'shape';
 
@@ -11,6 +11,8 @@ export type PuzzleModules = {
 	shape: string | null;
 };
 
+export type TraceMode = 'letter' | 'word';
+
 export type FamilyClue = {
 	n: number;
 	type: ClueType;
@@ -19,6 +21,8 @@ export type FamilyClue = {
 	discover: string;
 	answer: string;
 	puzzle: PuzzleModules;
+	/** For trace clues: 'letter' or 'word'. Empty for other types. */
+	traceMode: TraceMode | '';
 };
 
 export type ClueChangeDetail = {
@@ -28,6 +32,7 @@ export type ClueChangeDetail = {
 	discover: string;
 	answer: string;
 	puzzle: PuzzleModules;
+	traceMode: TraceMode | '';
 };
 
 export const emptyPuzzleModules = (): PuzzleModules => ({
@@ -44,5 +49,6 @@ export const createEmptyClue = (n: number): FamilyClue => ({
 	place: '',
 	discover: '',
 	answer: '',
-	puzzle: emptyPuzzleModules()
+	puzzle: emptyPuzzleModules(),
+	traceMode: ''
 });

@@ -1,5 +1,6 @@
 import { buildMixedCluePreview } from '$lib/data/clueBlocks';
 import { buildModularPuzzlePrompt } from '$lib/data/puzzleModules';
+import { buildTracePrompt } from '$lib/data/traceTargets';
 import type { AgeBand, FamilyClue } from '$lib/types/clues';
 
 export type PlayHunt = {
@@ -19,16 +20,18 @@ const gardenClues: FamilyClue[] = [
 		place: 'in the garden',
 		discover: 'What colour is it?',
 		answer: 'Green',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: ''
 	},
 	{
 		n: 2,
-		type: 'word',
-		action: 'Find',
-		place: 'by the watering can',
-		discover: 'What letter can you see?',
-		answer: 'B',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		type: 'trace',
+		action: '',
+		place: '',
+		discover: '',
+		answer: 'b',
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: 'letter'
 	},
 	{
 		n: 3,
@@ -37,7 +40,8 @@ const gardenClues: FamilyClue[] = [
 		place: '',
 		discover: '',
 		answer: '',
-		puzzle: { number: null, object: 'dog', colour: 'blue', shape: 'circle' }
+		puzzle: { number: null, object: 'dog', colour: 'blue', shape: 'circle' },
+		traceMode: ''
 	},
 	{
 		n: 4,
@@ -46,7 +50,8 @@ const gardenClues: FamilyClue[] = [
 		place: 'behind the garden bench',
 		discover: 'How many are there?',
 		answer: '3',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: ''
 	},
 	{
 		n: 5,
@@ -55,7 +60,8 @@ const gardenClues: FamilyClue[] = [
 		place: '',
 		discover: '',
 		answer: '',
-		puzzle: { number: '2', object: 'cat', colour: 'red', shape: null }
+		puzzle: { number: '2', object: 'cat', colour: 'red', shape: null },
+		traceMode: ''
 	}
 ];
 
@@ -67,7 +73,8 @@ const houseClues: FamilyClue[] = [
 		place: 'where we keep the shoes',
 		discover: 'What colour is it?',
 		answer: 'Red',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: ''
 	},
 	{
 		n: 2,
@@ -76,16 +83,18 @@ const houseClues: FamilyClue[] = [
 		place: '',
 		discover: '',
 		answer: '',
-		puzzle: { number: null, object: 'bird', colour: 'yellow', shape: 'star' }
+		puzzle: { number: null, object: 'bird', colour: 'yellow', shape: 'star' },
+		traceMode: ''
 	},
 	{
 		n: 3,
-		type: 'word',
-		action: 'Check',
-		place: 'under the sofa',
-		discover: 'What shape is it?',
-		answer: 'Square',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		type: 'trace',
+		action: '',
+		place: '',
+		discover: '',
+		answer: 'cat',
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: 'word'
 	},
 	{
 		n: 4,
@@ -94,15 +103,12 @@ const houseClues: FamilyClue[] = [
 		place: 'in the toy box',
 		discover: 'What animal is it?',
 		answer: 'Cat',
-		puzzle: { number: null, object: null, colour: null, shape: null }
+		puzzle: { number: null, object: null, colour: null, shape: null },
+		traceMode: ''
 	}
 ];
 
-const demoClues: FamilyClue[] = [
-	gardenClues[0],
-	houseClues[1],
-	gardenClues[2]
-];
+const demoClues: FamilyClue[] = [gardenClues[0], houseClues[1], gardenClues[2], houseClues[2]];
 
 export const sampleHunts: PlayHunt[] = [
 	{
@@ -141,21 +147,33 @@ export const getCluePrompt = (clue: FamilyClue): string => {
 	if (clue.type === 'puzzle') {
 		return buildModularPuzzlePrompt(clue.puzzle);
 	}
+	if (clue.type === 'trace') {
+		return buildTracePrompt(clue.traceMode, clue.answer);
+	}
 	return buildMixedCluePreview(clue.action, clue.place, clue.discover);
 };
 
 export type ClueDisplay =
 	| { type: 'word'; lead: string; question: string }
-	| { type: 'puzzle'; instruction: string; target: string };
+	| { type: 'puzzle'; instruction: string; target: string }
+	| { type: 'trace'; instruction: string; target: string };
 
 export const getClueDisplay = (clue: FamilyClue): ClueDisplay => {
 	if (clue.type === 'puzzle') {
 		const prompt = buildModularPuzzlePrompt(clue.puzzle);
-		const target = prompt.replace(/^Select the /i, '').trim();
 		return {
 			type: 'puzzle',
-			instruction: 'Find the picture',
-			target: target || prompt
+			instruction: 'Your clue',
+			target: prompt || 'Find the picture'
+		};
+	}
+
+	if (clue.type === 'trace') {
+		const prompt = buildTracePrompt(clue.traceMode, clue.answer);
+		return {
+			type: 'trace',
+			instruction: 'Your clue',
+			target: prompt || 'Trace the letters'
 		};
 	}
 

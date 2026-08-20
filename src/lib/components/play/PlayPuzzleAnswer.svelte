@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import PuzzleChoiceGrid from '$lib/components/clues/PuzzleChoiceGrid.svelte';
 	import { buildModularPuzzleChoices } from '$lib/data/puzzleModules';
 	import type { FamilyClue } from '$lib/types/clues';
@@ -11,20 +11,27 @@
 
 	let feedback = '';
 	let selectedCorrect = false;
+	let solveTimer: ReturnType<typeof setTimeout> | undefined;
 
 	$: cards = buildModularPuzzleChoices(clue.puzzle);
 
 	const handleSelect = (event: CustomEvent<{ cardId: string; isCorrect: boolean }>) => {
+		if (selectedCorrect) return;
 		if (event.detail.isCorrect) {
 			selectedCorrect = true;
 			feedback = 'Correct! Well done!';
 			speakText('Correct! Well done!');
-			window.setTimeout(() => dispatch('solved'), 700);
+			window.clearTimeout(solveTimer);
+			solveTimer = window.setTimeout(() => dispatch('solved'), 700);
 			return;
 		}
 		feedback = 'Not this one — try again!';
 		speakText('Not this one. Try again.');
 	};
+
+	onDestroy(() => {
+		window.clearTimeout(solveTimer);
+	});
 </script>
 
 <div class="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4">

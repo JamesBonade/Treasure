@@ -2,6 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import PlayPuzzleAnswer from '$lib/components/play/PlayPuzzleAnswer.svelte';
+	import PlayTraceAnswer from '$lib/components/play/PlayTraceAnswer.svelte';
 	import PlayWordAnswer from '$lib/components/play/PlayWordAnswer.svelte';
 	import { getClueDisplay, getCluePrompt, type PlayHunt } from '$lib/data/sampleHunts';
 	import type { FamilyClue } from '$lib/types/clues';
@@ -10,6 +11,9 @@
 	export let hunt: PlayHunt;
 	export let clue: FamilyClue;
 	export let playerName = '';
+	export let backHref = '/hunts';
+	export let backLabel = '← Hunts';
+	export let preview = false;
 
 	let isSpeaking = false;
 
@@ -52,13 +56,18 @@
 <div class="mx-auto flex w-full max-w-lg flex-col gap-5 sm:gap-6">
 	<header class="flex items-center justify-between gap-3 pt-1">
 		<a
-			href="/hunts"
+			href={backHref}
 			class="rounded-lg px-2 py-1 text-xs font-medium text-stone-500 transition hover:bg-stone-100 hover:text-stone-700"
-			aria-label="Back to hunts"
+			aria-label={preview ? 'Back to builder' : 'Back to hunts'}
 		>
-			← Hunts
+			{backLabel}
 		</a>
-		<p class="truncate text-sm font-medium text-stone-600">{hunt.title}</p>
+		<div class="min-w-0 text-center">
+			{#if preview}
+				<p class="text-[10px] font-semibold uppercase tracking-wider text-brand-600">Preview</p>
+			{/if}
+			<p class="truncate text-sm font-medium text-stone-600">{hunt.title}</p>
+		</div>
 		<span class="shrink-0 text-xs font-semibold text-brand-700">{clue.n}/{totalClues}</span>
 	</header>
 
@@ -84,7 +93,7 @@
 		<div class="relative mx-auto max-w-sm space-y-5 text-center">
 			<div class="space-y-1">
 				<p id="clue-heading" class="text-xs font-bold uppercase tracking-[0.2em] text-brand-700">
-					{display.type === 'word' ? 'Your clue' : 'Find this one'}
+					Your clue
 				</p>
 				{#if playerName}
 					<p class="text-sm text-stone-500">Go {playerName}!</p>
@@ -100,10 +109,7 @@
 						<p class="text-2xl font-bold leading-tight text-stone-900">{display.question}</p>
 					{/if}
 				{:else}
-					<p class="text-sm font-semibold uppercase tracking-wider text-stone-500">
-						{display.instruction}
-					</p>
-					<p class="text-2xl font-bold capitalize leading-tight text-stone-900">{display.target}</p>
+					<p class="text-2xl font-bold leading-snug text-stone-900 sm:text-3xl">{display.target}</p>
 				{/if}
 			</div>
 
@@ -126,11 +132,19 @@
 
 	<section class="flex flex-col rounded-3xl border border-stone-200/80 bg-white p-5 shadow-soft sm:p-6">
 		<h2 class="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-stone-500">
-			{clue.type === 'word' ? 'What is your answer?' : 'Tap the right picture'}
+			{#if clue.type === 'word'}
+				What is your answer?
+			{:else if clue.type === 'trace'}
+				Trace with your finger
+			{:else}
+				Tap the right picture
+			{/if}
 		</h2>
 
 		{#if clue.type === 'word'}
 			<PlayWordAnswer {clue} on:solved={handleSolved} />
+		{:else if clue.type === 'trace'}
+			<PlayTraceAnswer {clue} on:solved={handleSolved} />
 		{:else}
 			<PlayPuzzleAnswer {clue} on:solved={handleSolved} />
 		{/if}

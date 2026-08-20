@@ -15,6 +15,8 @@
 	let isListening = false;
 	let speechSupported = false;
 	let showTyping = false;
+	let solveTimer: ReturnType<typeof setTimeout> | undefined;
+	let solved = false;
 
 	let listener = createSpeechListener(
 		(transcript) => {
@@ -37,6 +39,7 @@
 	});
 
 	onDestroy(() => {
+		window.clearTimeout(solveTimer);
 		listener.stop();
 	});
 
@@ -46,15 +49,18 @@
 	};
 
 	const handleSubmit = (value = typedAnswer) => {
+		if (solved) return;
 		if (!value.trim()) {
 			setFeedback('Pick an answer or say it out loud.', 'error');
 			return;
 		}
 
 		if (answersMatch(value, clue.answer)) {
+			solved = true;
 			setFeedback('Correct! Well done!', 'success');
 			speakText('Correct! Well done!');
-			window.setTimeout(() => dispatch('solved'), 700);
+			window.clearTimeout(solveTimer);
+			solveTimer = window.setTimeout(() => dispatch('solved'), 700);
 			return;
 		}
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Frog">
+  <ellipse cx="60" cy="72" rx="38" ry="28" fill="#22C55E"/>
+  <circle cx="32" cy="40" r="18" fill="#4ADE80"/>
+  <circle cx="88" cy="40" r="18" fill="#4ADE80"/>
+  <circle cx="32" cy="40" r="8" fill="#fff"/>
+  <circle cx="88" cy="40" r="8" fill="#fff"/>
+  <circle cx="32" cy="40" r="4" fill="#1C1917"/>
+  <circle cx="88" cy="40" r="4" fill="#1C1917"/>
+  <ellipse cx="24" cy="92" rx="16" ry="11" fill="#16A34A"/>
+  <ellipse cx="96" cy="92" rx="16" ry="11" fill="#16A34A"/>
+  <path d="M44 78 Q60 90 76 78" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="48" cy="62" rx="5" ry="3" fill="#86EFAC"/>
+  <ellipse cx="72" cy="62" rx="5" ry="3" fill="#86EFAC"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="#000">
+  <!-- Elephant: large body, big ears, long trunk -->
+  <ellipse cx="58" cy="78" rx="38" ry="28"/>
+  <circle cx="64" cy="48" r="28"/>
+  <ellipse cx="28" cy="52" rx="16" ry="24" transform="rotate(-12 28 52)"/>
+  <ellipse cx="92" cy="48" rx="14" ry="22" transform="rotate(18 92 48)"/>
+  <path d="M52 62 C48 78 44 96 52 108 C56 100 58 84 60 68 Z"/>
+  <ellipse cx="40" cy="102" rx="10" ry="7"/>
+  <ellipse cx="78" cy="102" rx="10" ry="7"/>
+</svg>

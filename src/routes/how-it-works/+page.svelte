@@ -5,9 +5,9 @@
 	};
 
 	const clueTypes: ClueType[] = [
-		{ name: 'Written', description: 'Riddles, rhymes, or simple instructions.' },
-		{ name: 'Puzzle', description: 'Age-appropriate puzzles that unlock the next step.' },
-		{ name: 'Map', description: 'Sketch or marked maps pointing to the next location.' }
+		{ name: 'Word', description: 'Action, place, and a question kids answer.' },
+		{ name: 'Puzzle', description: 'Pick the matching number, animal, colour, or shape.' },
+		{ name: 'Trace', description: 'Trace a letter or short word with a finger or mouse.' }
 	];
 </script>
 

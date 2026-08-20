@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="#000">
+  <!-- Bear: small ears on a huge round head, wide body, clear snout -->
+  <circle cx="28" cy="26" r="12"/>
+  <circle cx="92" cy="26" r="12"/>
+  <circle cx="60" cy="52" r="36"/>
+  <ellipse cx="60" cy="96" rx="34" ry="16"/>
+  <ellipse cx="60" cy="68" rx="18" ry="14"/>
+</svg>

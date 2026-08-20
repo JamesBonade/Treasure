@@ -1,17 +1,25 @@
 <script lang="ts">
-	export let src: string;
+	/** Full picture glyph, or a coloured shape backdrop (no animal recolouring). */
+	export let src: string | null = null;
 	export let colour: string | null = null;
+	export let shapeMaskSrc: string | null = null;
 	export let sizeClass = 'h-12 w-12';
 	export let alt = '';
 </script>
 
-{#if colour}
+{#if shapeMaskSrc}
 	<span
 		class="inline-block {sizeClass}"
 		role="img"
 		aria-label={alt}
-		style={`background-color: ${colour}; mask-image: url('${src}'); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-image: url('${src}'); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;`}
+		style={`background-color: ${colour ?? '#A8A29E'}; mask-image: url('${shapeMaskSrc}'); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-image: url('${shapeMaskSrc}'); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;`}
 	></span>
-{:else}
-	<img {src} {alt} class="{sizeClass} object-contain" />
+{:else if src}
+	<span
+		class="inline-flex {sizeClass} items-center justify-center overflow-hidden rounded-2xl"
+		style={colour ? `background-color: ${colour}` : undefined}
+		class:bg-stone-100={!colour}
+	>
+		<img {src} {alt} class="h-[78%] w-[78%] object-contain" />
+	</span>
 {/if}

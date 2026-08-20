@@ -20,7 +20,16 @@ export type AnswerKind =
 const toBlocks = (texts: string[]): ClueBlock[] =>
 	texts.map((text, index) => ({ n: index + 1, text }));
 
-export const colourAnswerBlocks = toBlocks(['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple']);
+export const colourAnswerBlocks = toBlocks([
+	'Red',
+	'Blue',
+	'Green',
+	'Yellow',
+	'Orange',
+	'Purple',
+	'Pink',
+	'Brown'
+]);
 
 export const numberAnswerBlocks = toBlocks([
 	...numberOptionsAge3to5.map((option) => option.label),
@@ -36,7 +45,19 @@ export const letterAnswerBlocks = toBlocks('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''
 
 export const shapeAnswerBlocks = toBlocks(shapeOptionsAge3to5.map((option) => option.label));
 
-export const animalAnswerBlocks = toBlocks(['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit', 'Horse']);
+export const animalAnswerBlocks = toBlocks([
+	'Dog',
+	'Cat',
+	'Bird',
+	'Fish',
+	'Rabbit',
+	'Frog',
+	'Duck',
+	'Butterfly',
+	'Elephant',
+	'Bear',
+	'Horse'
+]);
 
 export const wordAnswerBlocks = toBlocks(['Sun', 'Book', 'Door', 'Home', 'Star', 'Stop']);
 

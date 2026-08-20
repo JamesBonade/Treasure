@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-  <ellipse cx="60" cy="72" rx="28" ry="22"/>
-  <circle cx="60" cy="48" r="20"/>
-  <ellipse cx="38" cy="32" rx="10" ry="14"/>
-  <ellipse cx="82" cy="32" rx="10" ry="14"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="#000">
+  <ellipse cx="26" cy="40" rx="10" ry="18" transform="rotate(-20 26 40)"/>
+  <ellipse cx="94" cy="40" rx="10" ry="18" transform="rotate(20 94 40)"/>
+  <circle cx="60" cy="52" r="28"/>
+  <ellipse cx="60" cy="88" rx="32" ry="22"/>
+  <ellipse cx="90" cy="96" rx="12" ry="7" transform="rotate(30 90 96)"/>
 </svg>

@@ -3,6 +3,7 @@
 	import ModularPuzzleBuilder from '$lib/components/clues/ModularPuzzleBuilder.svelte';
 	import PhraseBlockPicker from '$lib/components/clues/PhraseBlockPicker.svelte';
 	import PuzzleChoiceGrid from '$lib/components/clues/PuzzleChoiceGrid.svelte';
+	import TraceClueBuilder from '$lib/components/clues/TraceClueBuilder.svelte';
 	import {
 		actionBlocks,
 		buildMixedCluePreview,
@@ -21,7 +22,8 @@
 		buildModularPuzzlePrompt,
 		hasPuzzleSelection
 	} from '$lib/data/puzzleModules';
-	import type { ClueChangeDetail, ClueType, PuzzleModules } from '$lib/types/clues';
+	import { buildTracePrompt } from '$lib/data/traceTargets';
+	import type { ClueChangeDetail, ClueType, PuzzleModules, TraceMode } from '$lib/types/clues';
 	import { emptyPuzzleModules } from '$lib/types/clues';
 
 	export let clueNumber: number;
@@ -31,6 +33,7 @@
 	export let discover = '';
 	export let answer = '';
 	export let puzzle: PuzzleModules = emptyPuzzleModules();
+	export let traceMode: TraceMode | '' = '';
 
 	const dispatch = createEventDispatcher<{ change: ClueChangeDetail }>();
 
@@ -48,12 +51,14 @@
 
 	$: puzzlePrompt = buildModularPuzzlePrompt(puzzle);
 	$: choiceCards = type === 'puzzle' ? buildModularPuzzleChoices(puzzle) : [];
+	$: tracePrompt = buildTracePrompt(traceMode, answer);
 	$: previewAction = action.trim() || actionExample;
 	$: previewPlace = place.trim() || placeExample;
 	$: previewDiscover = discover.trim() || discoverExample;
 	$: previewAnswer = answer.trim() || answerExample;
 	$: wordPreview = buildMixedCluePreview(previewAction, previewPlace, previewDiscover);
-	$: preview = type === 'word' ? wordPreview : puzzlePrompt;
+	$: preview =
+		type === 'word' ? wordPreview : type === 'trace' ? tracePrompt : puzzlePrompt;
 	$: previewIsExample =
 		type === 'word' && !action.trim() && !place.trim() && !discover.trim() && !answer.trim();
 	$: answerIsExample = !answer.trim();
@@ -65,7 +70,8 @@
 			place: next.place !== undefined ? next.place : place,
 			discover: next.discover !== undefined ? next.discover : discover,
 			answer: next.answer !== undefined ? next.answer : answer,
-			puzzle: next.puzzle !== undefined ? next.puzzle : puzzle
+			puzzle: next.puzzle !== undefined ? next.puzzle : puzzle,
+			traceMode: next.traceMode !== undefined ? next.traceMode : traceMode
 		});
 	};
 
@@ -77,7 +83,8 @@
 			place: '',
 			discover: '',
 			answer: '',
-			puzzle: emptyPuzzleModules()
+			puzzle: emptyPuzzleModules(),
+			traceMode: nextType === 'trace' ? 'letter' : ''
 		});
 	};
 
@@ -103,6 +110,13 @@
 
 	const handlePuzzleChange = (event: CustomEvent<PuzzleModules>) => {
 		emitChange({ puzzle: event.detail });
+	};
+
+	const handleTraceChange = (event: CustomEvent<{ mode: TraceMode; text: string }>) => {
+		emitChange({
+			traceMode: event.detail.mode,
+			answer: event.detail.text
+		});
 	};
 </script>
 
@@ -130,6 +144,15 @@
 					on:click={() => handleTypeChange('puzzle')}
 				>
 					Puzzle
+				</button>
+				<button
+					type="button"
+					class="segmented-btn !px-2.5 !py-1"
+					class:segmented-btn-active={type === 'trace'}
+					aria-pressed={type === 'trace'}
+					on:click={() => handleTypeChange('trace')}
+				>
+					Trace
 				</button>
 			</div>
 		</div>
@@ -188,6 +211,13 @@
 					on:change={handleAnswerChange}
 				/>
 			{/key}
+		{:else if type === 'trace'}
+			<TraceClueBuilder
+				{clueNumber}
+				mode={traceMode || 'letter'}
+				text={answer}
+				on:change={handleTraceChange}
+			/>
 		{:else}
 			<ModularPuzzleBuilder {clueNumber} {puzzle} on:change={handlePuzzleChange} />
 			{#if hasPuzzleSelection(puzzle)}
