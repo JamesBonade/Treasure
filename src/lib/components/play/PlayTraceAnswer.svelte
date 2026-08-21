@@ -5,7 +5,9 @@
 		getLetterStrokes,
 		LETTER_ASCENDER,
 		LETTER_BASELINE,
-		LETTER_MIDLINE
+		LETTER_MIDLINE,
+		LETTER_VIEW_H,
+		LETTER_VIEW_W
 	} from '$lib/data/letterStrokes';
 	import { buildTracePrompt, normaliseTraceText } from '$lib/data/traceTargets';
 	import type { FamilyClue } from '$lib/types/clues';
@@ -20,12 +22,10 @@
 	export let clue: FamilyClue;
 
 	const dispatch = createEventDispatcher<{ solved: void }>();
-	/** Must cover nearly all of the guide before Done unlocks. */
-	const READY_RATIO = 0.9;
+	/** Must cover most of the guide before Done unlocks. */
+	const READY_RATIO = 0.85;
 	/** Ignore Done taps briefly after drawing so a finger-up can't click through. */
 	const SETTLE_MS = 650;
-	const VIEW_W = 100;
-	const VIEW_H = 120;
 
 	let canvasEl: HTMLCanvasElement | undefined;
 	let wrapEl: HTMLDivElement | undefined;
@@ -46,7 +46,7 @@
 	let width = 0;
 	let height = 0;
 	let hitRadius = 20;
-	let penWidth = 16;
+	let penWidth = 6;
 	let measureSvg: SVGSVGElement | undefined;
 	let lastRecorded: TraceDrawPoint | null = null;
 
@@ -67,13 +67,13 @@
 	const mapLetterLayout = () => {
 		const count = Math.max(1, chars.length);
 		const sidePad = Math.max(20, width * 0.04);
-		const topPad = Math.max(28, height * 0.08);
-		const bottomPad = Math.max(28, height * 0.08);
+		const topPad = Math.max(24, height * 0.07);
+		const bottomPad = Math.max(24, height * 0.07);
 		const usableW = width - sidePad * 2;
 		const usableH = height - topPad - bottomPad;
 		const cellW = usableW / count;
-		const letterW = Math.min(cellW * 0.92, usableH * 0.72);
-		const letterH = letterW * (VIEW_H / VIEW_W);
+		const letterH = usableH * 0.78;
+		const letterW = Math.min(cellW * 0.92, letterH * (LETTER_VIEW_W / LETTER_VIEW_H));
 		const startX = sidePad + (usableW - letterW * count) / 2;
 		const startY = topPad + (usableH - letterH) / 2;
 
@@ -83,11 +83,62 @@
 			letterW,
 			letterH,
 			toCanvas: (letterIndex: number, x: number, y: number) => ({
-				x: startX + letterIndex * letterW + (x / VIEW_W) * letterW,
-				y: startY + (y / VIEW_H) * letterH
+				x: startX + letterIndex * letterW + (x / LETTER_VIEW_W) * letterW,
+				y: startY + (y / LETTER_VIEW_H) * letterH
 			}),
-			lineY: (guideY: number) => startY + (guideY / VIEW_H) * letterH
+			lineY: (guideY: number) => startY + (guideY / LETTER_VIEW_H) * letterH
 		};
+	};
+
+	const withMappedPath = (
+		d: string,
+		letterIndex: number,
+		layout: ReturnType<typeof mapLetterLayout>,
+		step: number,
+		onPoint: (x: number, y: number, dist: number, length: number) => void
+	): number => {
+		const svg = ensureMeasureSvg();
+		if (!svg) return 0;
+		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+		path.setAttribute('d', d);
+		svg.appendChild(path);
+		const length = path.getTotalLength() || 0;
+		if (length <= 0) {
+			svg.removeChild(path);
+			return 0;
+		}
+		for (let dist = 0; dist < length; dist += step) {
+			const pt = path.getPointAtLength(dist);
+			const mapped = layout.toCanvas(letterIndex, pt.x, pt.y);
+			onPoint(mapped.x, mapped.y, dist, length);
+		}
+		const end = path.getPointAtLength(length);
+		const mappedEnd = layout.toCanvas(letterIndex, end.x, end.y);
+		onPoint(mappedEnd.x, mappedEnd.y, length, length);
+		svg.removeChild(path);
+		return length;
+	};
+
+	const inkMetrics = (layout: ReturnType<typeof mapLetterLayout>) => {
+		const bodyWidth = Math.max(
+			8,
+			Math.round(Math.min(layout.letterW * 0.16, layout.letterH * 0.07))
+		);
+		return {
+			bodyWidth,
+			guideWidth: Math.max(3, Math.round(bodyWidth * 0.42)),
+			penWidth: Math.max(4, Math.round(bodyWidth * 0.45)),
+			hitRadius: Math.max(18, Math.round(bodyWidth * 1.15))
+		};
+	};
+
+	const canvasPathStep = (layout: ReturnType<typeof mapLetterLayout>): number => {
+		const scale = Math.max(
+			layout.letterW / LETTER_VIEW_W,
+			layout.letterH / LETTER_VIEW_H,
+			0.5
+		);
+		return 4 / scale;
 	};
 
 	const sampleStroke = (
@@ -97,25 +148,16 @@
 		layout: ReturnType<typeof mapLetterLayout>,
 		step: number
 	) => {
-		const svg = ensureMeasureSvg();
-		if (!svg) return [] as SamplePoint[];
-		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		path.setAttribute('d', d);
-		svg.appendChild(path);
-		const length = path.getTotalLength() || 0;
 		const points: SamplePoint[] = [];
-		for (let dist = 0; dist <= length; dist += step) {
-			const pt = path.getPointAtLength(dist);
-			const mapped = layout.toCanvas(letterIndex, pt.x, pt.y);
+		withMappedPath(d, letterIndex, layout, step, (x, y, dist, length) => {
 			points.push({
-				x: mapped.x,
-				y: mapped.y,
+				x,
+				y,
 				strokeIndex,
 				t: length > 0 ? dist / length : 0,
 				hit: false
 			});
-		}
-		svg.removeChild(path);
+		});
 		return points;
 	};
 
@@ -135,39 +177,48 @@
 		ctx.restore();
 	};
 
+	const strokeLetterPaths = (
+		layout: ReturnType<typeof mapLetterLayout>,
+		step: number
+	) => {
+		const canvasCtx = ctx;
+		if (!canvasCtx) return;
+		chars.forEach((char, letterIndex) => {
+			for (const stroke of getLetterStrokes(char)) {
+				let started = false;
+				canvasCtx.beginPath();
+				withMappedPath(stroke.d, letterIndex, layout, step, (x, y) => {
+					if (!started) {
+						canvasCtx.moveTo(x, y);
+						started = true;
+						return;
+					}
+					canvasCtx.lineTo(x, y);
+				});
+				if (started) canvasCtx.stroke();
+			}
+		});
+	};
+
 	const drawLetterGuides = (layout: ReturnType<typeof mapLetterLayout>) => {
 		if (!ctx) return;
+		const { bodyWidth, guideWidth } = inkMetrics(layout);
+		const step = canvasPathStep(layout);
+
 		ctx.save();
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
-		ctx.strokeStyle = '#D6D3D1';
-		ctx.lineWidth = Math.max(12, layout.letterW * 0.11);
-		ctx.setLineDash([10, 8]);
 
-		chars.forEach((char, letterIndex) => {
-			const strokes = getLetterStrokes(char);
-			for (const stroke of strokes) {
-				const svg = ensureMeasureSvg();
-				if (!svg) continue;
-				const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-				path.setAttribute('d', stroke.d);
-				svg.appendChild(path);
-				const length = path.getTotalLength() || 0;
-				if (length <= 0) {
-					svg.removeChild(path);
-					continue;
-				}
-				ctx.beginPath();
-				for (let dist = 0; dist <= length; dist += 2) {
-					const pt = path.getPointAtLength(dist);
-					const mapped = layout.toCanvas(letterIndex, pt.x, pt.y);
-					if (dist === 0) ctx.moveTo(mapped.x, mapped.y);
-					else ctx.lineTo(mapped.x, mapped.y);
-				}
-				ctx.stroke();
-				svg.removeChild(path);
-			}
-		});
+		ctx.strokeStyle = '#E7E5E4';
+		ctx.lineWidth = bodyWidth;
+		ctx.setLineDash([]);
+		strokeLetterPaths(layout, step);
+
+		ctx.strokeStyle = '#047857';
+		ctx.globalAlpha = 0.55;
+		ctx.lineWidth = guideWidth;
+		ctx.setLineDash([8, 6]);
+		strokeLetterPaths(layout, step);
 
 		ctx.restore();
 	};
@@ -176,11 +227,7 @@
 		if (!canvasEl || !wrapEl || !text) return;
 		const rect = wrapEl.getBoundingClientRect();
 		width = Math.max(320, Math.floor(rect.width));
-		height = Math.max(
-			360,
-			Math.min(520, Math.floor(window.innerHeight * 0.42)),
-			chars.length > 6 ? 380 : chars.length > 1 ? 420 : 460
-		);
+		height = Math.max(360, Math.min(480, Math.floor(window.innerHeight * 0.42)));
 
 		const dpr = window.devicePixelRatio || 1;
 		canvasEl.width = width * dpr;
@@ -194,8 +241,9 @@
 		ctx.clearRect(0, 0, width, height);
 
 		const layout = mapLetterLayout();
-		penWidth = Math.max(14, Math.round(layout.letterW * 0.12));
-		hitRadius = Math.max(16, Math.round(penWidth * 1.15));
+		const ink = inkMetrics(layout);
+		penWidth = ink.penWidth;
+		hitRadius = ink.hitRadius;
 
 		ctx.fillStyle = '#FAFAF9';
 		ctx.fillRect(0, 0, width, height);
@@ -203,7 +251,7 @@
 		drawGuideLines(layout);
 		drawLetterGuides(layout);
 
-		const step = 3;
+		const step = canvasPathStep(layout);
 		const next: SamplePoint[] = [];
 		let strokeIndex = 0;
 		chars.forEach((char, letterIndex) => {
@@ -316,7 +364,7 @@
 		if (ctx) ctx.beginPath();
 	};
 
-	const handleClear = () => {
+	const handleThumbsDown = () => {
 		if (completed) return;
 		rebuildGuide();
 	};
@@ -339,12 +387,12 @@
 		solveTimer = window.setTimeout(() => dispatch('solved'), 4500);
 	};
 
-	const handleDonePointerDown = (event: PointerEvent) => {
+	const handleThumbsUpPointerDown = (event: PointerEvent) => {
 		if (!isReady || completed) return;
 		donePointerId = event.pointerId;
 	};
 
-	const handleDonePointerUp = (event: PointerEvent) => {
+	const handleThumbsUpPointerUp = (event: PointerEvent) => {
 		if (donePointerId !== event.pointerId) return;
 		donePointerId = null;
 		event.preventDefault();
@@ -352,13 +400,25 @@
 		finishTrace();
 	};
 
-	const handleDonePointerCancel = () => {
+	const handleThumbsUpPointerCancel = () => {
 		donePointerId = null;
 	};
 
-	const handleDoneClick = (event: MouseEvent) => {
+	const handleThumbsUpClick = (event: MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
+	};
+
+	const handleThumbsUpKeyDown = (event: KeyboardEvent) => {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		finishTrace();
+	};
+
+	const handleThumbsDownKeyDown = (event: KeyboardEvent) => {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		handleThumbsDown();
 	};
 
 	let resizeObserver: ResizeObserver | undefined;
@@ -431,33 +491,38 @@
 		</div>
 	</div>
 
-	<div class="flex flex-wrap items-center justify-center gap-2">
+	<div class="flex items-center justify-center gap-8">
 		<button
 			type="button"
-			class="btn-secondary !px-3 !py-1.5 text-xs"
+			class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-stone-200 bg-white text-3xl shadow-sm transition hover:border-stone-300 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:cursor-not-allowed disabled:opacity-40"
 			disabled={completed}
-			on:click={handleClear}
+			tabindex="0"
+			aria-label="Try again"
+			on:click={handleThumbsDown}
+			on:keydown={handleThumbsDownKeyDown}
 		>
-			Clear
+			<span aria-hidden="true">👎</span>
 		</button>
 		<button
 			type="button"
-			class="btn-primary !px-5 !py-2 text-sm"
+			class="flex h-16 w-16 items-center justify-center rounded-full bg-brand-600 text-3xl text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:cursor-not-allowed disabled:opacity-40"
 			disabled={!isReady}
-			aria-label="Done tracing"
-			on:pointerdown={handleDonePointerDown}
-			on:pointerup={handleDonePointerUp}
-			on:pointercancel={handleDonePointerCancel}
-			on:click={handleDoneClick}
+			tabindex="0"
+			aria-label="All done"
+			on:pointerdown={handleThumbsUpPointerDown}
+			on:pointerup={handleThumbsUpPointerUp}
+			on:pointercancel={handleThumbsUpPointerCancel}
+			on:click={handleThumbsUpClick}
+			on:keydown={handleThumbsUpKeyDown}
 		>
-			Done
+			<span aria-hidden="true">👍</span>
 		</button>
 	</div>
 
 	{#if progress >= READY_RATIO && !settled && !completed}
-		<p class="text-center text-sm text-stone-500">Lift your finger, then tap Done</p>
+		<p class="text-center text-sm text-stone-500">Lift your finger, then tap the thumbs up</p>
 	{:else if isReady && !completed}
-		<p class="text-center text-sm font-medium text-brand-800">Looking good — tap Done when you finish</p>
+		<p class="text-center text-sm font-medium text-brand-800">Looking good — tap the thumbs up when you finish</p>
 	{/if}
 
 	{#if scoreResult}

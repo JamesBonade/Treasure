@@ -23,8 +23,8 @@
 	<div class="max-w-xl space-y-3">
 		<h2 class="text-xl font-semibold">Family hunt flow</h2>
 		<ol class="list-decimal space-y-2 pl-5 text-stone-700">
-			<li>Create a hunt and pick an age band and setting (house, garden, other).</li>
-			<li>Add an ordered list of clues leading to the final treasure spot.</li>
+			<li>Start a hunt and set the title, age, and setting while you build clues.</li>
+			<li>Add as many clues as you like, leading to the final treasure spot.</li>
 			<li>Hide the treasure at the last location.</li>
 			<li>Share a play code with your children.</li>
 			<li>They solve each clue until they find the treasure.</li>

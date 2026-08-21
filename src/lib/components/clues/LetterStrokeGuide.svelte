@@ -4,7 +4,9 @@
 		getLetterStrokes,
 		LETTER_ASCENDER,
 		LETTER_BASELINE,
-		LETTER_MIDLINE
+		LETTER_MIDLINE,
+		LETTER_VIEW_H,
+		LETTER_VIEW_W
 	} from '$lib/data/letterStrokes';
 
 	export let text = '';
@@ -102,39 +104,39 @@
 
 	$: letterWidth = compact
 		? chars.length > 6
-			? 36
+			? 32
 			: chars.length > 3
-				? 44
-				: 52
+				? 40
+				: 48
 		: chars.length > 6
-			? 64
+			? 56
 			: chars.length > 3
-				? 84
+				? 72
 				: chars.length > 1
-					? 100
-					: 140;
+					? 88
+					: 120;
 	$: letterHeight = compact
 		? chars.length > 6
-			? 48
-			: 64
+			? 64
+			: 76
 		: chars.length > 6
-			? 96
+			? 132
 			: chars.length > 1
-				? 128
-				: 180;
+				? 148
+				: 172;
 </script>
 
 {#if chars.length > 0}
 	<div class="relative inline-flex justify-center" aria-hidden="true">
 		<svg
 			class="pointer-events-none absolute inset-0 h-full w-full"
-			viewBox="0 0 100 120"
+			viewBox="0 0 {LETTER_VIEW_W} {LETTER_VIEW_H}"
 			preserveAspectRatio="none"
 		>
 			<line
 				x1="0"
 				y1={LETTER_ASCENDER}
-				x2="100"
+				x2={LETTER_VIEW_W}
 				y2={LETTER_ASCENDER}
 				stroke="#E7E5E4"
 				stroke-width="2.5"
@@ -143,7 +145,7 @@
 			<line
 				x1="0"
 				y1={LETTER_MIDLINE}
-				x2="100"
+				x2={LETTER_VIEW_W}
 				y2={LETTER_MIDLINE}
 				stroke="#E7E5E4"
 				stroke-width="2.5"
@@ -152,7 +154,7 @@
 			<line
 				x1="0"
 				y1={LETTER_BASELINE}
-				x2="100"
+				x2={LETTER_VIEW_W}
 				y2={LETTER_BASELINE}
 				stroke="#E7E5E4"
 				stroke-width="2.5"
@@ -162,7 +164,7 @@
 		<div class="relative flex flex-wrap items-end justify-center gap-1 sm:gap-2">
 			{#each letters as letter (letter.key)}
 				<svg
-					viewBox="0 0 100 120"
+					viewBox="0 0 {LETTER_VIEW_W} {LETTER_VIEW_H}"
 					width={letterWidth}
 					height={letterHeight}
 					class="overflow-visible"
@@ -172,7 +174,7 @@
 							d={stroke.d}
 							fill="none"
 							stroke="#E7E5E4"
-							stroke-width="14"
+							stroke-width="7"
 							stroke-linecap="round"
 							stroke-linejoin="round"
 						/>
@@ -183,7 +185,7 @@
 							d={stroke.d}
 							fill="none"
 							stroke="#047857"
-							stroke-width="10"
+							stroke-width="5"
 							stroke-linecap="round"
 							stroke-linejoin="round"
 							style={`stroke-dasharray: ${stroke.length}; stroke-dashoffset: ${stroke.length}; animation-duration: ${stroke.duration}s; animation-delay: ${stroke.delay}s;`}

@@ -36,7 +36,7 @@
 					>How it works</a
 				>
 				<a href="/hunts" class="nav-link" class:!bg-brand-50={path.startsWith('/hunts')}>My hunts</a>
-				<a href="/play/DEMO" class="nav-link" class:!bg-brand-50={path.startsWith('/play')}>Play</a>
+				<a href="/play" class="nav-link" class:!bg-brand-50={path.startsWith('/play')}>Play</a>
 			</nav>
 		</div>
 	</header>

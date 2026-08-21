@@ -1,15 +1,18 @@
-/** Handwriting-style stroke paths for lowercase letters (viewBox 0 0 100 120). */
+/** Handwriting-style stroke paths for lowercase letters (viewBox 0 0 100 140). */
 
 export type LetterStroke = {
 	d: string;
 };
+
+export const LETTER_VIEW_W = 100;
+export const LETTER_VIEW_H = 140;
 
 /** Faint ruling lines shared by the stroke guide. */
 export const LETTER_ASCENDER = 20;
 export const LETTER_MIDLINE = 48;
 export const LETTER_BASELINE = 95;
 /** Lowest point for descender tails (below the baseline). */
-export const LETTER_DESCENDER = 118;
+export const LETTER_DESCENDER = 136;
 
 /**
  * Height bands:
@@ -41,7 +44,7 @@ export const letterStrokeMap: Record<string, LetterStroke[]> = {
 	],
 	g: [
 		{ d: 'M 70 68 C 70 48 40 48 36 68 C 34 86 62 90 70 74 L 70 68' },
-		{ d: 'M 70 74 L 70 100 C 70 118 42 118 34 108' }
+		{ d: 'M 70 74 L 70 112 C 70 136 36 138 28 122' }
 	],
 	h: [
 		{ d: 'M 32 20 L 32 95' },
@@ -52,7 +55,7 @@ export const letterStrokeMap: Record<string, LetterStroke[]> = {
 		{ d: 'M 50 28 L 50 32' }
 	],
 	j: [
-		{ d: 'M 58 48 L 58 100 C 58 118 30 118 30 102' },
+		{ d: 'M 58 48 L 58 112 C 58 136 28 136 26 122' },
 		{ d: 'M 58 28 L 58 32' }
 	],
 	k: [
@@ -72,12 +75,12 @@ export const letterStrokeMap: Record<string, LetterStroke[]> = {
 	],
 	o: [{ d: 'M 50 48 C 28 48 26 95 50 95 C 74 95 72 48 50 48' }],
 	p: [
-		{ d: 'M 32 48 L 32 118' },
+		{ d: 'M 32 48 L 32 136' },
 		{ d: 'M 32 62 C 32 48 68 48 68 70 C 68 92 32 95 32 78' }
 	],
 	q: [
 		{ d: 'M 70 70 C 70 50 38 50 38 70 C 38 90 70 90 70 70' },
-		{ d: 'M 70 50 L 70 110 C 72 118 84 116 88 108' }
+		{ d: 'M 70 50 L 70 128 C 74 138 90 136 92 124' }
 	],
 	r: [
 		{ d: 'M 36 48 L 36 95' },
@@ -100,7 +103,7 @@ export const letterStrokeMap: Record<string, LetterStroke[]> = {
 	],
 	y: [
 		{ d: 'M 32 48 L 32 78 C 32 95 68 95 68 78 L 68 48' },
-		{ d: 'M 68 48 L 68 108 C 66 118 46 118 38 110' }
+		{ d: 'M 68 48 L 68 124 C 64 136 40 138 32 124' }
 	],
 	z: [
 		{ d: 'M 32 48 L 68 48 L 32 95 L 70 95' }

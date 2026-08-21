@@ -1,3 +1,13 @@
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { startNewHunt } from '$lib/utils/huntPreview';
+
+	const handleCreateHunt = () => {
+		const id = startNewHunt();
+		goto(`/hunts/${id}`);
+	};
+</script>
+
 <section class="space-y-10">
 	<div class="panel overflow-hidden">
 		<div class="bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 px-6 py-10 text-white sm:px-8 sm:py-12">
@@ -10,9 +20,14 @@
 				let children follow the trail.
 			</p>
 			<div class="mt-6 flex flex-wrap gap-3">
-				<a href="/hunts/new" class="btn-primary !bg-white !text-brand-800 hover:!bg-brand-50">
+				<button
+					type="button"
+					class="btn-primary !bg-white !text-brand-800 hover:!bg-brand-50"
+					aria-label="Create a home hunt"
+					on:click={handleCreateHunt}
+				>
 					Create a home hunt
-				</a>
+				</button>
 				<a href="/hunts" class="btn-secondary !border-white/30 !bg-white/10 !text-white hover:!bg-white/20">
 					My hunts
 				</a>

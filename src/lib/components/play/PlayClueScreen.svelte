@@ -20,10 +20,11 @@
 	$: prompt = getCluePrompt(clue);
 	$: display = getClueDisplay(clue);
 	$: totalClues = hunt.clues.length;
+	$: previewQuery = preview ? '?preview=1' : '';
 	$: nextPath =
 		clue.n >= totalClues
-			? `/play/${hunt.code}/complete`
-			: `/play/${hunt.code}/clue/${clue.n + 1}`;
+			? `/play/${hunt.code}/complete${previewQuery}`
+			: `/play/${hunt.code}/clue/${clue.n + 1}${previewQuery}`;
 
 	onMount(() => {
 		if (prompt) {
