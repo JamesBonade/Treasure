@@ -26,6 +26,12 @@
 	const READY_RATIO = 0.85;
 	/** Ignore Done taps briefly after drawing so a finger-up can't click through. */
 	const SETTLE_MS = 650;
+	const ENCOURAGE_MILESTONES = [
+		{ at: 0.2, message: 'Nice start!' },
+		{ at: 0.45, message: 'Keep going!' },
+		{ at: 0.7, message: "You're doing great!" },
+		{ at: READY_RATIO, message: 'Almost there!' }
+	] as const;
 
 	let canvasEl: HTMLCanvasElement | undefined;
 	let wrapEl: HTMLDivElement | undefined;
@@ -34,6 +40,8 @@
 	let progress = 0;
 	let completed = false;
 	let feedback = '';
+	let encourageMessage = '';
+	let encourageIndex = 0;
 	let scoreResult: TraceScoreResult | null = null;
 	let solveTimer: ReturnType<typeof setTimeout> | undefined;
 	let settleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -266,6 +274,8 @@
 		progress = 0;
 		completed = false;
 		feedback = '';
+		encourageMessage = '';
+		encourageIndex = 0;
 		scoreResult = null;
 		drawing = false;
 		settled = true;
@@ -292,6 +302,19 @@
 		drawPoints.push({ x, y });
 	};
 
+	const maybeEncourage = () => {
+		if (completed) return;
+		while (
+			encourageIndex < ENCOURAGE_MILESTONES.length &&
+			progress >= ENCOURAGE_MILESTONES[encourageIndex].at
+		) {
+			const next = ENCOURAGE_MILESTONES[encourageIndex];
+			encourageMessage = next.message;
+			speakText(next.message);
+			encourageIndex += 1;
+		}
+	};
+
 	const markCoverage = (x: number, y: number) => {
 		const radiusSq = hitRadius * hitRadius;
 		let changed = false;
@@ -308,6 +331,7 @@
 
 		const hitCount = samples.filter((sample) => sample.hit).length;
 		progress = samples.length ? hitCount / samples.length : 0;
+		maybeEncourage();
 	};
 
 	const paintStroke = (x: number, y: number) => {
@@ -489,6 +513,14 @@
 				style={`width: ${Math.min(100, Math.round(progress * 100))}%`}
 			></div>
 		</div>
+		{#if encourageMessage && !completed}
+			<p
+				class="text-center text-base font-semibold text-brand-800 transition-opacity"
+				aria-live="polite"
+			>
+				{encourageMessage}
+			</p>
+		{/if}
 	</div>
 
 	<div class="flex items-center justify-center gap-8">

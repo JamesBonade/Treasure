@@ -188,6 +188,52 @@
 		editorKey += 1;
 	};
 
+	const renumberClues = (clues: FamilyClue[]): FamilyClue[] =>
+		clues.map((clue, index) => ({
+			...clue,
+			n: index + 1,
+			puzzle: { ...clue.puzzle }
+		}));
+
+	const deleteClueAt = async (index: number) => {
+		const clue = savedClues[index];
+		if (!clue) return;
+
+		const confirmed = window.confirm(`Delete clue ${clue.n}? This cannot be undone.`);
+		if (!confirmed) return;
+
+		const wasEditing = editingIndex;
+		savedClues = renumberClues(savedClues.filter((_, i) => i !== index));
+
+		if (savedClues.length === 0) {
+			editingIndex = null;
+			draft = createEmptyClue(1);
+		} else if (wasEditing === null) {
+			draft = { ...draft, n: savedClues.length + 1 };
+		} else if (wasEditing === index) {
+			const nextIndex = Math.min(index, savedClues.length - 1);
+			const next = savedClues[nextIndex];
+			draft = { ...next, puzzle: { ...next.puzzle } };
+			editingIndex = nextIndex;
+		} else if (wasEditing > index) {
+			editingIndex = wasEditing - 1;
+			const next = savedClues[editingIndex];
+			draft = { ...next, puzzle: { ...next.puzzle } };
+		}
+
+		editorKey += 1;
+		await persistHunt();
+	};
+
+	const handleDeleteSaved = async (event: CustomEvent<number>) => {
+		await deleteClueAt(event.detail);
+	};
+
+	const handleDeleteCurrent = async () => {
+		if (editingIndex === null) return;
+		await deleteClueAt(editingIndex);
+	};
+
 	const handlePreview = async () => {
 		if (!canPreview) return;
 
@@ -238,6 +284,7 @@
 				{isWritingNew}
 				summaryFor={clueSummary}
 				on:edit={handleEditSaved}
+				on:delete={handleDeleteSaved}
 			/>
 		</div>
 		<div class="flex items-center gap-2">
@@ -245,6 +292,16 @@
 				<span class="text-[10px] font-medium uppercase tracking-wide text-stone-400">Saving…</span>
 			{:else if saveError}
 				<span class="max-w-[10rem] text-[10px] font-medium text-red-700">{saveError}</span>
+			{/if}
+			{#if editingIndex !== null}
+				<button
+					type="button"
+					class="btn-ghost !px-2 !py-1.5 text-xs text-red-700 hover:bg-red-50"
+					aria-label="Delete this clue"
+					on:click={handleDeleteCurrent}
+				>
+					Delete
+				</button>
 			{/if}
 			<button
 				type="button"

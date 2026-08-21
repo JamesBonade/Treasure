@@ -8,11 +8,24 @@
 	export let isWritingNew = true;
 	export let summaryFor: (clue: FamilyClue) => string;
 
-	const dispatch = createEventDispatcher<{ edit: number }>();
+	const dispatch = createEventDispatcher<{ edit: number; delete: number }>();
 
 	const handleEdit = (index: number) => {
 		if (activeIndex === index) return;
 		dispatch('edit', index);
+	};
+
+	const handleDelete = (index: number, event: MouseEvent) => {
+		event.preventDefault();
+		event.stopPropagation();
+		dispatch('delete', index);
+	};
+
+	const handleDeleteKeyDown = (index: number, event: KeyboardEvent) => {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		event.stopPropagation();
+		dispatch('delete', index);
 	};
 </script>
 
@@ -23,23 +36,35 @@
 				{#if index > 0}
 					<span class="text-stone-300" aria-hidden="true">›</span>
 				{/if}
-				<button
-					type="button"
-					class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition"
-					class:bg-brand-700={activeIndex === index}
-					class:text-white={activeIndex === index}
-					class:ring-2={activeIndex === index}
-					class:ring-brand-200={activeIndex === index}
-					class:bg-stone-100={activeIndex !== index}
-					class:text-stone-600={activeIndex !== index}
-					class:hover:bg-stone-200={activeIndex !== index}
-					aria-current={activeIndex === index ? 'step' : undefined}
-					title={summaryFor(clue)}
-					aria-label="Clue {clue.n}: {summaryFor(clue)}"
-					on:click={() => handleEdit(index)}
-				>
-					{clue.n}
-				</button>
+				<div class="relative flex items-center">
+					<button
+						type="button"
+						class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition"
+						class:bg-brand-700={activeIndex === index}
+						class:text-white={activeIndex === index}
+						class:ring-2={activeIndex === index}
+						class:ring-brand-200={activeIndex === index}
+						class:bg-stone-100={activeIndex !== index}
+						class:text-stone-600={activeIndex !== index}
+						class:hover:bg-stone-200={activeIndex !== index}
+						aria-current={activeIndex === index ? 'step' : undefined}
+						title={summaryFor(clue)}
+						aria-label="Clue {clue.n}: {summaryFor(clue)}"
+						on:click={() => handleEdit(index)}
+					>
+						{clue.n}
+					</button>
+					<button
+						type="button"
+						class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-stone-700 text-[9px] font-bold leading-none text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-200"
+						aria-label="Delete clue {clue.n}"
+						title="Delete clue {clue.n}"
+						on:click={(event) => handleDelete(index, event)}
+						on:keydown={(event) => handleDeleteKeyDown(index, event)}
+					>
+						×
+					</button>
+				</div>
 			</li>
 		{/each}
 
